@@ -5,11 +5,18 @@ This is a standalone, minimal Vulkan `hello triangle` example in pure C for Linu
 Many Vulkan tutorials or minimal examples use way too much boilerplate, are not standalone, support too many platforms, and are in C++.
 This is an attempt to remedy that.
 
+It follows:  
+https://jhenriques.net/vulkan_shaders.html  
+https://vulkan-tutorial.com/Introduction  
+
 To compile, run:
 
 ```
 gcc vk0.c -o vk0 -lxcb -lvulkan  -Wno-format-zero-length
+gcc vk1.c -o vk1 -lxcb -lvulkan  -Wno-format-zero-length
 ```
+
+`vk0` and `vk1` are distinct, independent examples.
 
 [Repent of your sins and be baptized in the name of Jesus Christ for the remission of sins.](https://bible.com/bible/1/jhn.3)  
 

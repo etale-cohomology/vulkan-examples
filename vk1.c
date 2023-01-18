@@ -18,7 +18,6 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		pUserData:       NULL,
 	};
 
-	const char* enabledExtensionNames[] = {"VK_KHR_surface","VK_KHR_xcb_surface","VK_EXT_debug_utils"};  // VK_KHR_surface  VK_KHR_xcb_surface  VK_EXT_debug_utils  VK_EXT_debug_report  VK_EXT_validation_features
 	vkchk(vkCreateInstance(&(VkInstanceCreateInfo){  // Note we activate the WSI instance extensions, provided by the ICD to allow us to create an xcb surface
 		sType:                   VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,                  // VkStructureType
 		pApplicationInfo:        &(VkApplicationInfo){  // app info is optional (ie. specify app name, version)
@@ -30,10 +29,10 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 			engineVersion:      VK_MAKE_VERSION(1,0,0),              // uint32_t
 			apiVersion:         VK_API_VERSION_1_0,                  // uint32_t
 		},                                        // const VkApplicationInfo*
-		enabledLayerCount:       0,                                                       // u32
-		ppEnabledLayerNames:     (const char*[]){"VK_LAYER_LUNARG_standard_validation"},  // const char* const*. don't forget to disable the layers when done debugging? VK_LAYER_LUNARG_standard_validation VK_LAYER_KHRONOS_validation
-		enabledExtensionCount:   3,                                                       // u32
-		ppEnabledExtensionNames: enabledExtensionNames,                                   // const char* const*
+		enabledLayerCount:       0,                                                                            // u32
+		ppEnabledLayerNames:     (const char*[]){"VK_LAYER_LUNARG_standard_validation"},                       // const char* const*. don't forget to disable the layers when done debugging? VK_LAYER_LUNARG_standard_validation VK_LAYER_KHRONOS_validation
+		enabledExtensionCount:   3,                                                                            // u32
+		ppEnabledExtensionNames: (const char*[]){"VK_KHR_surface","VK_KHR_xcb_surface","VK_EXT_debug_utils"},  // const char* const*. VK_KHR_surface  VK_KHR_xcb_surface  VK_EXT_debug_utils  VK_EXT_debug_report  VK_EXT_validation_features
 	}, NULL, &vk.instance));                // 50 ms...
 
 	// ----------------------------------------------------------------------------------------------------------------------------# 1) debug

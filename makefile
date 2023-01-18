@@ -1,7 +1,7 @@
 CC  = tcc
 TCC = tcc
 GCC = gcc-8
-T   = t
+T   = 
 
 all: vk0 vk1
 

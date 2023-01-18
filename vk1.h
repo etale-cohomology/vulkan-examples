@@ -15,6 +15,7 @@ t tcc vk1.c -o vk1  -lxcb -lvulkan  &&  t ./vk1
 
 // ---------------------------------------------------------------- types
 #include <stdint.h>
+
 typedef    uint8_t    u8;
 typedef    uint16_t   u16;
 typedef    uint32_t   u32;
