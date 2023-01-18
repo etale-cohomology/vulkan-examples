@@ -139,6 +139,8 @@ https://momentsingraphics.de/ToyRenderer4RayTracing.html
 
 - 2 semaphores in vk: binary & timeline
 
+- draw triangle strips: https://registry.khronos.org/vulkan/specs/1.3-extensions/html/vkspec.html#drawing-triangle-strips
+
 --------------------------------------------------------------------------------------------------------------------------------
 # vk vulkan
 
