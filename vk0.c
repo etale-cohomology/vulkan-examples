@@ -251,7 +251,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		},
 		pInputAssemblyState: &(VkPipelineInputAssemblyStateCreateInfo){  // what kind of geometry will be drawn from the vertices and if primitive restart should be enabled
 			sType:                  VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
-			topology:               VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
+			topology:               VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,  // IMPORTANT!
 			primitiveRestartEnable: VK_FALSE,
 		},
 		pTessellationState:  NULL,  // VkPipelineTessellationStateCreateInfo
@@ -268,7 +268,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 			rasterizerDiscardEnable: VK_FALSE,
 			polygonMode:             VK_POLYGON_MODE_FILL,
 			cullMode:                VK_CULL_MODE_BACK_BIT,
-			frontFace:               VK_FRONT_FACE_COUNTER_CLOCKWISE,
+			frontFace:               VK_FRONT_FACE_COUNTER_CLOCKWISE,  // IMPORTANT!
 			depthBiasEnable:         VK_FALSE,
 			depthBiasConstantFactor: 0.0,
 			depthBiasClamp:          0.0,
@@ -466,7 +466,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		vkCmdBindPipeline( vk.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk.graphicsPipeline);
 		vkCmdSetViewport(  vk.commandBuffer, 0, 1, &(VkViewport){0.0,0.0, vk.swapchainExtent.width,vk.swapchainExtent.height, 0.0,0.0});
 		vkCmdSetScissor(   vk.commandBuffer, 0, 1, &(VkRect2D){offset:{0,0}, extent:vk.swapchainExtent});
-		vkCmdDraw(         vk.commandBuffer, 4, 1, 0, 0);  // draw 4 vertices
+		vkCmdDraw(         vk.commandBuffer, 4, 1, 0, 0);  // IMPORTANT! draw 4 vertices
 		vkCmdEndRenderPass(vk.commandBuffer);
 		vkchk(vkEndCommandBuffer(vk.commandBuffer));  // end cmd buf recording
 

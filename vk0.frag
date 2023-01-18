@@ -16,7 +16,7 @@ float sdcircle(in vec2 uv, in vec2 center,in float radius){
 // }
 
 void main(){
-	// vec2 uv = fragCoord.xy;  // [-1..+1] x [-1..+1] in (x,-y) coordinates with origin in the middle of the screen (ie. (-1,+1) is the top left corner of the screen)
+	// vec2 uv = fragCoord.xy;  // [-1..+1] x [-1..+1] in (x,-y) coordinates with origin (0,0) in the middle of the screen (ie. (-1,-1) is the top left corner of the screen)
 
 	// vec4 bg = vec4(0.1,0.1,0.1, 1.0);
 
