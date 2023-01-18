@@ -4,7 +4,7 @@
 
 This is a standalone, minimal set of `Vulkan` examples in `pure C` for `Linux/XCB`.
 
-This isn't (just) your grandma's `hello triangle`, though. It also shows how to an set up a [`Shadertoy`](https://www.shadertoy.com/view/3ltSW2)-like **fragment shader renderer** (which isn't much more complicated than your grandma's `hello triangle`).
+This isn't (just) a `hello triangle`. It also shows how to an set up a [`Shadertoy`](https://www.shadertoy.com/view/3ltSW2)-like **fragment shader renderer** (which isn't much more complicated than `hello triangle`: draw [2 triangles](https://reddit.com/r/twotriangles/) instead of 1).
 
 Many Vulkan tutorials or minimal examples use way too much boilerplate, are not standalone, support too many platforms, don't implement the `Shadertoy` renderer, and are in C++.
 This is an attempt to remedy that.
@@ -84,6 +84,11 @@ vkDestroySurfaceKHR()
 vkDestroyDebugUtilsMessengerEXT()
 vkDestroyInstance()
 ```
+
+# 2 Triangles
+
+A fragment-shader-only, 2-triangle-only render is equivalent to a massively parallel for-loop over all pixels. At each pixel, compute the pixel's color independently, where each pixel knows its own position within the screen, but very little about its neighbors.
+This is a very general setup, and allows you to implement a variety of computer graphics algorithms, like 2D SDF drawing, ray marching, or path tracing.
 
 --------------------------------------------------------------------------------------------------------------------------------
 # sources
