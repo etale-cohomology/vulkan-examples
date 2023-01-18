@@ -4,7 +4,7 @@
 
 This is a standalone, minimal set of `Vulkan` examples in `pure C` for `Linux/XCB`.
 
-This isn't (just) a `hello triangle`. It also shows how to an set up a [`Shadertoy`](https://www.shadertoy.com/view/3ltSW2)-like **fragment shader renderer** (which isn't much more complicated than `hello triangle`: draw [2 triangles](https://reddit.com/r/twotriangles/) instead of 1).
+This isn't (just) a `hello triangle`. It sets up a [`Shadertoy`](https://www.shadertoy.com/view/3ltSW2)-like **fragment shader renderer** (which isn't much more complicated than `hello triangle`: draw [2 triangles](https://reddit.com/r/twotriangles/) instead of 1).
 
 Many Vulkan tutorials or minimal examples use way too much boilerplate, are not standalone, support too many platforms, don't implement the `Shadertoy` renderer, and are in C++.
 This is an attempt to remedy that.
@@ -13,14 +13,11 @@ It follows:
 https://jhenriques.net/development.html  
 https://vulkan-tutorial.com
 
-To compile, run:
+To compile an example (eg. `vk0`), run:
 
 ```
 gcc vk0.c -o vk0 -lxcb -lvulkan  -Wno-format-zero-length
-gcc vk1.c -o vk1 -lxcb -lvulkan  -Wno-format-zero-length
 ```
-
-`vk0` and `vk1` are distinct, independent examples, one simpler than the other.
 
 [Repent of your sins and be baptized in the name of Jesus Christ for the remission of sins.](https://bible.com/bible/1/jhn.3)  
 
