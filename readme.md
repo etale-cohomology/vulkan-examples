@@ -154,6 +154,7 @@ vkDestroyDebugReportCallbackEXT()
 vkDebugReportMessageEXT()  
 
 ----------------------------------------------------------------
+```shell
 git init
 gitc
 git remote add origin https://github.com/etale-cohomology/vulkan-examples.git
@@ -171,3 +172,4 @@ cd $git
 git clone --recurse-submodules https://github.com/KhronosGroup/Vulkan-Samples  &&  cd Vulkan-Samples
 
 cmake -G "Unix Makefiles" -H. -Bbuild/linux -DCMAKE_BUILD_TYPE=Release  &&  cmake --build build/linux --config Release --target vulkan_samples -- -j28  &&  ./build/linux/app/bin/Release/x86_64/vulkan_samples --help
+```
