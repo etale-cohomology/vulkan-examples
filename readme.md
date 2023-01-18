@@ -11,7 +11,8 @@ This is an attempt to remedy that.
 
 It follows:  
 https://jhenriques.net/development.html  
-https://vulkan-tutorial.com
+https://vulkan-tutorial.com  
+https://github.com/SaschaWillems/Vulkan  
 
 To compile an example (eg. `vk0`), run:
 
@@ -99,11 +100,14 @@ https://registry.khronos.org/SPIR-V/specs/unified1/SPIRV.html
 
 https://github.com/KhronosGroup/Vulkan-Samples  
 https://github.com/KhronosGroup/Vulkan-Guide  
-https://github.com/KhronosGroup/Vulkan-Loader/blob/master/docs/LoaderInterfaceArchitecture.md  
+https://github.com/KhronosGroup/Vulkan-Loader
 https://github.com/KhronosGroup/Vulkan-ValidationLayers  
 https://github.com/KhronosGroup/SPIRV-Headers  
 https://github.com/KhronosGroup/Vulkan-Samples/tree/master/samples/performance/swapchain_images  
 
+https://intel.com/content/www/us/en/developer/articles/training/api-without-secrets-introduction-to-vulkan-part-1.html  
+https://harrylovescode.gitbooks.io/vulkan-api/content/chap06/chap06.html  
+https://renderdoc.org/vulkan-in-30-minutes.html  
 https://momentsingraphics.de/ToyRenderer4RayTracing.html  
 
 # notes
