@@ -148,10 +148,7 @@ Separate extensions for each platform provide the mechanisms for creating VkSurf
 
 ## VK_KHR_xcb_surface
 
-## VK_EXT_debug_report (deprecated)
-vkCreateDebugReportCallbackEXT()  
-vkDestroyDebugReportCallbackEXT()  
-vkDebugReportMessageEXT()  
+Create a `VkSurfaceKHR` surface (from the `VK_KHR_surface` extension) that refers to an XCB window.
 
 ----------------------------------------------------------------
 ```shell
