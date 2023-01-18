@@ -23,7 +23,7 @@ gcc vk0.c -o vk0 -lxcb -lvulkan  -Wno-format-zero-length
 
 # high-level picture
 
-In order to draw a fragment-shaded polygon with 3 vertices, you can use (roughly) the following Vulkan/XCB API calls:
+In order to draw a fragment-shaded polygon with `N` vertices, you can use (roughly) the following Vulkan/XCB API calls:
 
 ```python
 # initialization
