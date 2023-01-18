@@ -1,5 +1,7 @@
 # description
 
+![hi](vk0.png "vk0 fragment shader renderer")
+
 This is a standalone, minimal Vulkan `hello triangle` example in pure C for Linux/XCB.
 
 Many Vulkan tutorials or minimal examples use way too much boilerplate, are not standalone, support too many platforms, and are in C++.
@@ -16,7 +18,7 @@ gcc vk0.c -o vk0 -lxcb -lvulkan  -Wno-format-zero-length
 gcc vk1.c -o vk1 -lxcb -lvulkan  -Wno-format-zero-length
 ```
 
-`vk0` and `vk1` are distinct, independent examples.
+`vk0` and `vk1` are distinct, independent examples, one simpler than the other.
 
 [Repent of your sins and be baptized in the name of Jesus Christ for the remission of sins.](https://bible.com/bible/1/jhn.3)  
 
