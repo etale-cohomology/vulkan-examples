@@ -139,6 +139,7 @@ https://momentsingraphics.de/ToyRenderer4RayTracing.html
 
 - 2 semaphores in vk: binary & timeline
 
+--------------------------------------------------------------------------------------------------------------------------------
 # vk vulkan
 
 ## VK_KHR_surface
@@ -151,6 +152,8 @@ Separate extensions for each platform provide the mechanisms for creating VkSurf
 Create a `VkSurfaceKHR` surface (from the `VK_KHR_surface` extension) that refers to an XCB window.
 
 ----------------------------------------------------------------
+# misc
+
 ```shell
 git init
 gitc
