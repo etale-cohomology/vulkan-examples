@@ -77,21 +77,21 @@ vkDestroyInstance()
 --------------------------------------------------------------------------------------------------------------------------------
 # sources
 
-https://registry.khronos.org/vulkan/
-https://registry.khronos.org/SPIR-V/
-https://registry.khronos.org/vulkan/specs/1.3/registry.html
-https://renderdoc.org/vulkan-in-30-minutes.html
-https://registry.khronos.org/vulkan/specs/1.3-extensions/pdf/vkspec.pdf
-https://registry.khronos.org/SPIR-V/specs/unified1/SPIRV.html
+https://registry.khronos.org/vulkan/  
+https://registry.khronos.org/SPIR-V/  
+https://registry.khronos.org/vulkan/specs/1.3/registry.html  
+https://renderdoc.org/vulkan-in-30-minutes.html  
+https://registry.khronos.org/vulkan/specs/1.3-extensions/pdf/vkspec.pdf  
+https://registry.khronos.org/SPIR-V/specs/unified1/SPIRV.html  
 
-https://github.com/KhronosGroup/Vulkan-Samples
-https://github.com/KhronosGroup/Vulkan-Guide
-https://github.com/KhronosGroup/Vulkan-Loader/blob/master/docs/LoaderInterfaceArchitecture.md
-https://github.com/KhronosGroup/Vulkan-ValidationLayers
-https://github.com/KhronosGroup/SPIRV-Headers
-https://github.com/KhronosGroup/Vulkan-Samples/tree/master/samples/performance/swapchain_images
+https://github.com/KhronosGroup/Vulkan-Samples  
+https://github.com/KhronosGroup/Vulkan-Guide  
+https://github.com/KhronosGroup/Vulkan-Loader/blob/master/docs/LoaderInterfaceArchitecture.md  
+https://github.com/KhronosGroup/Vulkan-ValidationLayers  
+https://github.com/KhronosGroup/SPIRV-Headers  
+https://github.com/KhronosGroup/Vulkan-Samples/tree/master/samples/performance/swapchain_images  
 
-https://momentsingraphics.de/ToyRenderer4RayTracing.html
+https://momentsingraphics.de/ToyRenderer4RayTracing.html  
 
 # notes
 
@@ -144,7 +144,7 @@ vkDebugReportMessageEXT()
 git init
 gitc
 git remote add origin https://github.com/etale-cohomology/vulkan-examples.git
-git push -u origin master
+git push -uf origin master
 
 ----------------------------------------------------------------
 cd $git
