@@ -1,6 +1,6 @@
 # description
 
-![hi](vk0.png "vk0 fragment shader renderer")
+![vk0 fragment shader renderer](vk0.png "vk0 fragment shader renderer")
 
 This is a standalone, minimal set of `Vulkan` examples in `pure C` for `Linux/XCB`.
 
@@ -10,8 +10,8 @@ Many Vulkan tutorials or minimal examples use way too much boilerplate, are not 
 This is an attempt to remedy that.
 
 It follows:  
-https://jhenriques.net/vulkan_shaders.html  
-https://vulkan-tutorial.com/Introduction  
+https://jhenriques.net/development.html  
+https://vulkan-tutorial.com
 
 To compile, run:
 
