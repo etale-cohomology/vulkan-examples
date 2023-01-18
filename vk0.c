@@ -466,8 +466,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		vkCmdBindPipeline( vk.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk.graphicsPipeline);
 		vkCmdSetViewport(  vk.commandBuffer, 0, 1, &(VkViewport){0.0,0.0, vk.swapchainExtent.width,vk.swapchainExtent.height, 0.0,0.0});
 		vkCmdSetScissor(   vk.commandBuffer, 0, 1, &(VkRect2D){offset:{0,0}, extent:vk.swapchainExtent});
-		vkCmdDraw(         vk.commandBuffer, 4, 1, 0, 0);
-
+		vkCmdDraw(         vk.commandBuffer, 4, 1, 0, 0);  // draw 4 vertices
 		vkCmdEndRenderPass(vk.commandBuffer);
 		vkchk(vkEndCommandBuffer(vk.commandBuffer));  // end cmd buf recording
 

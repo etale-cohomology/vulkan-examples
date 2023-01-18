@@ -137,8 +137,8 @@ struct{  // shaders
 	VkShaderStageFlagBits shaderStageFlagBits;  // vshdr, gshdr, tshdr, fshdr, etc.
 	VkShaderModule        shaderModule;
 }SHDRS[] = {
-	{path:"vk0.vert.spv", shaderStageFlagBits:VK_SHADER_STAGE_VERTEX_BIT},
-	{path:"vk0.frag.spv", shaderStageFlagBits:VK_SHADER_STAGE_FRAGMENT_BIT},
+	{path:"vk1.vert.spv", shaderStageFlagBits:VK_SHADER_STAGE_VERTEX_BIT},
+	{path:"vk1.frag.spv", shaderStageFlagBits:VK_SHADER_STAGE_FRAGMENT_BIT},
 };
 
 tdef{

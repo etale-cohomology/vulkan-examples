@@ -2,9 +2,11 @@
 
 ![hi](vk0.png "vk0 fragment shader renderer")
 
-This is a standalone, minimal Vulkan `hello triangle` example in pure C for Linux/XCB.
+This is a standalone, minimal set of `Vulkan` examples in `pure C` for `Linux/XCB`.
 
-Many Vulkan tutorials or minimal examples use way too much boilerplate, are not standalone, support too many platforms, and are in C++.
+This isn't (just) your grandma's `hello triangle`, though. It also shows how to an set up a [`Shadertoy`](https://www.shadertoy.com/view/3ltSW2)-like **fragment shader renderer** (which isn't much more complicated than your grandma's `hello triangle`).
+
+Many Vulkan tutorials or minimal examples use way too much boilerplate, are not standalone, support too many platforms, don't implement the `Shadertoy` renderer, and are in C++.
 This is an attempt to remedy that.
 
 It follows:  
