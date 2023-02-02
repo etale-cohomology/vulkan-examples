@@ -119,7 +119,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 	surfaceCapabilities.currentExtent.width  = surfaceCapabilities.currentExtent.width!=0xffffffff ? surfaceCapabilities.currentExtent.width  : 1920;
 	surfaceCapabilities.currentExtent.height = surfaceCapabilities.currentExtent.width!=0xffffffff ? surfaceCapabilities.currentExtent.height : 1080;
 
-	vk.swapchainFormat = surfaceFormatCount==1 && surfaceFormats[0].format==VK_FORMAT_UNDEFINED ? VK_FORMAT_B8G8R8_UNORM : surfaceFormats[0].format;  printf("swapchainFormat \x1b[35m%02x\x1b[0m\n",vk.swapchainFormat);  // surfaceFormatCount==1 && surfaceFormats[0].format==VK_FORMAT_UNDEFINED ? VK_FORMAT_B8G8R8_UNORM : surfaceFormats[0].format,
+	vk.swapchainFormat = surfaceFormatCount==1 && surfaceFormats[0].format==VK_FORMAT_UNDEFINED ? VK_FORMAT_B8G8R8_SRGB : surfaceFormats[0].format;  printf("swapchainFormat \x1b[35m%02x\x1b[0m\n",vk.swapchainFormat);  // surfaceFormatCount==1 && surfaceFormats[0].format==VK_FORMAT_UNDEFINED ? VK_FORMAT_B8G8R8_UNORM : surfaceFormats[0].format,
 	vk.swapchainExtent = surfaceCapabilities.currentExtent;
 
 	// u32              presentModeCount;               vkchk(vkGetPhysicalDeviceSurfacePresentModesKHR(vk.physicalDevice, vk.surface, &presentModeCount, NULL));
@@ -268,7 +268,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		memoryTypeIndex: memoryTypeIndex,  // uint32_t  // TODO! check against @memoryRequirements.memoryTypeBits?
 	}, NULL, &vk.vertexBufferMemory));
 
-	vkBindBufferMemory(vk.device, vk.vertexBuffer, vk.vertexBufferMemory, 0);
+	bvkBindBufferMemory(vk.device, vk.vertexBuffer, vk.vertexBufferMemory, 0);
 	void* vertexBufferData; vkMapMemory(vk.device, vk.vertexBufferMemory, 0,vertexBufferSize, 0,&vertexBufferData);
 	memcpy(vertexBufferData, verts, vertexBufferSize);
 	vkUnmapMemory(vk.device, vk.vertexBufferMemory);

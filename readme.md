@@ -38,6 +38,8 @@ vkCreateSwapchainKHR()
 vkCreateImageView()
 vkCreateRenderPass()
 vkCreateShaderModule()
+vkCreateBuffer()
+vkAllocateMemory()
 vkCreatePipelineCache()
 vkCreateGraphicsPipelines()   # the most complicated call in the whole program
 vkCreateFramebuffer()
