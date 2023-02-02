@@ -126,6 +126,7 @@ https://momentsingraphics.de/ToyRenderer4RayTracing.html
 - each physical device defines the number &ss type of queues it admits (eg. compute and graphics queues)
 - vulkan render-passes use attachments to describe input and output render targets.
 - don't forget to disable layers when done debugging?
+- a swapchain is a queue of imgs waiting to be blitted to the screen. the swapchain synchronizes gpu blitting w/ the screen refresh rate
 
 - validation layers are optional components that hook into Vulkan fn calls to apply extra ops. common ops in validation layers are:
 	- checking the values of parameters against the specification to detect misuse

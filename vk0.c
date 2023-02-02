@@ -140,16 +140,18 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		pQueueFamilyIndices:   NULL,                                         // const uint32_t*
 		preTransform:          surfaceCapabilities.supportedTransforms&VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR ? VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR : surfaceCapabilities.currentTransform,  // VkSurfaceTransformFlagBitsKHR
 		compositeAlpha:        VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,            // VkCompositeAlphaFlagBitsKHR
-		presentMode:           VK_PRESENT_MODE_IMMEDIATE_KHR,                // VkPresentModeKHR. VK_PRESENT_MODE_IMMEDIATE_KHR  VK_PRESENT_MODE_MAILBOX_KHR  VK_PRESENT_MODE_FIFO_KHR  VK_PRESENT_MODE_FIFO_RELAXED_KHR  VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR  VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR  // VK_PRESENT_MODE_FIFO_KHR should be always available
+		presentMode:           VK_PRESENT_MODE_IMMEDIATE_KHR,                // VkPresentModeKHR. VK_PRESENT_MODE_IMMEDIATE_KHR  VK_PRESENT_MODE_MAILBOX_KHR  VK_PRESENT_MODE_FIFO_KHR  VK_PRESENT_MODE_FIFO_RELAXED_KHR  VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR  VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR  // VK_PRESENT_MODE_IMMEDIATE_KHR is the fastest, ie. no vsync?  // VK_PRESENT_MODE_FIFO_KHR should be always available
 		clipped:               VK_TRUE,                                      // VkBool32
 		oldSwapchain:          VK_NULL_HANDLE,                               // VkSwapchainKHR
 	}, NULL, &vk.swapchain));  // the swap chain has been created now, so all that remains is retrieving the handles of the VkImages in it
 
-	                                                  vkGetSwapchainImagesKHR(vk.device, vk.swapchain, &vk.swapchainImageCount, NULL);  printf("swapchainImageCount \x1b[92m%'u\x1b[0m\n", vk.swapchainImageCount);
-	VkImage swapchainImages[vk.swapchainImageCount];  vkGetSwapchainImagesKHR(vk.device, vk.swapchain, &vk.swapchainImageCount, swapchainImages);  // then we'll set up the imgs as render target
+	vkGetSwapchainImagesKHR(vk.device, vk.swapchain, &vk.swapchainImageCount, NULL);  printf("swapchainImageCount \x1b[92m%'u\x1b[0m\n", vk.swapchainImageCount);
+	VkImage       swapchainImages[      vk.swapchainImageCount];
+	VkFramebuffer swapchainFramebuffers[vk.swapchainImageCount];
+	VkImageView   swapchainImageViews[  vk.swapchainImageCount];  // to use any VkImage, including those in the swap chain, in the render pipeline we must create a VkImageView object
+	vkGetSwapchainImagesKHR(vk.device, vk.swapchain, &vk.swapchainImageCount, swapchainImages);  // then we'll set up the imgs as render target
 
 	// ----------------------------------------------------------------------------------------------------------------------------# 5) image views
-	VkImageView swapchainImageViews[vk.swapchainImageCount];  // to use any VkImage, including those in the swap chain, in the render pipeline we must create a VkImageView object
 	foru(i, 0,vk.swapchainImageCount){
 		vkchk(vkCreateImageView(vk.device, &(VkImageViewCreateInfo){
 			sType:            VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -329,8 +331,6 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------------------# 10) framebuffers
-	VkFramebuffer swapchainFramebuffers[vk.swapchainImageCount];
-
 	foru(i, 0,vk.swapchainImageCount){
 		vkchk(vkCreateFramebuffer(vk.device, &(VkFramebufferCreateInfo){
 			sType:           VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
