@@ -228,7 +228,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		};
 	}
 
-	// ----------------------------------------------------------------------------------------------------------------------------# 11) bufs: eg. vertex buffers  https://vulkan-tutorial.com/Vertex_buffers/Vertex_buffer_creation
+	// ----------------------------------------------------------------------------------------------------------------------------# 9) bufs: eg. vertex buffers  https://vulkan-tutorial.com/Vertex_buffers/Vertex_buffer_creation
 	struct{
 		f32 x,y;
 	}verts[] = {
@@ -273,7 +273,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 	memcpy(vertexBufferData, verts, vertexBufferSize);
 	vkUnmapMemory(vk.device, vk.vertexBufferMemory);
 
-	// ----------------------------------------------------------------------------------------------------------------------------# 9) graphics pipeline
+	// ----------------------------------------------------------------------------------------------------------------------------# 10) graphics pipeline
 	vkchk(vkCreatePipelineCache(vk.device, &(VkPipelineCacheCreateInfo){
 		sType: VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO,
 	}, NULL, &vk.graphicsPipelineCache));
@@ -293,11 +293,11 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		pVertexInputState:   &(VkPipelineVertexInputStateCreateInfo){  // describe the format of the vertex data that will be passed to the vshdr: bindings, attribute descriptions
 	    sType:                           VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,  // VkStructureType
 	    vertexBindingDescriptionCount:   1,  // uint32_t
-	    pVertexBindingDescriptions:      	(VkVertexInputBindingDescription[]){{  // const VkVertexInputBindingDescription*
+	    pVertexBindingDescriptions:      	(VkVertexInputBindingDescription[]){{
 				binding:   0,
 				stride:    sizeof(verts[0]),
 				inputRate: VK_VERTEX_INPUT_RATE_VERTEX,  // VkVertexInputRate: VK_VERTEX_INPUT_RATE_VERTEX  VK_VERTEX_INPUT_RATE_INSTANCE
-			}},
+			}},  // const VkVertexInputBindingDescription*
 	    vertexAttributeDescriptionCount: 1,  // uint32_t
 	    pVertexAttributeDescriptions:    (VkVertexInputAttributeDescription[]){{
 				binding:  0,
@@ -385,7 +385,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		vkDestroyShaderModule(vk.device, SHDRS[i].shaderModule, NULL);  // the compilation and linking of the SPIR-V bytecode to machine code doesn't happen until the graphics pipeline is created. That means that we can destroy the shdr modules after the pipeline is created
 	}
 
-	// ----------------------------------------------------------------------------------------------------------------------------# 10) framebuffers
+	// ----------------------------------------------------------------------------------------------------------------------------# 11) framebuffers
 	foru(i, 0,vk.swapchainImageCount){
 		vkchk(vkCreateFramebuffer(vk.device, &(VkFramebufferCreateInfo){
 			sType:           VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
@@ -431,9 +431,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		vkCmdBindPipeline( swapchainCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, vk.graphicsPipeline);  // VK_PIPELINE_BIND_POINT_GRAPHICS  VK_PIPELINE_BIND_POINT_COMPUTE  VK_PIPELINE_BIND_POINT_RAY_TRACING_NV
 		vkCmdSetViewport(  swapchainCommandBuffers[i], 0, 1, &(VkViewport){0.0,0.0, vk.swapchainExtent.width,vk.swapchainExtent.height, 0.0,0.0});
 		vkCmdSetScissor(   swapchainCommandBuffers[i], 0, 1, &(VkRect2D){offset:{0,0}, extent:vk.swapchainExtent});
-
 		vkCmdBindVertexBuffers(swapchainCommandBuffers[i], 0,1, (VkBuffer[]){vk.vertexBuffer}, (VkDeviceSize[]){0x00});
-
 		vkCmdDraw(         swapchainCommandBuffers[i], vk.vertexCount, 1, 0, 0);  // IMPORTANT! draw as many vertices as you're passing to the vshdr
 		vkCmdEndRenderPass(swapchainCommandBuffers[i]);
 		vkchk(vkEndCommandBuffer(swapchainCommandBuffers[i]));  // end cmd buf recording
