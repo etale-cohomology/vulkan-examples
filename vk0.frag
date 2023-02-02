@@ -2,7 +2,7 @@
 layout(location=0) in  vec2 fragCoord;  // @in values need not have the same same as in the vshdr; yet they MUST have same @location
 layout(location=0) out vec4 fragColor;
 
-vec4 iResolution = vec4(1920/2,1080, 0,0);
+vec4 iResolution = vec4(1920,1080, 0,0);
 
 // https://shadertoy.com/view/3ltSW2
 float sdcircle(in vec2 uv, in vec2 center,in float radius){
@@ -26,7 +26,7 @@ void main(){
 
 	// fragColor = mix(bg,disk, disk.a);
 
-	vec2  p      = fragCoord;
+	vec2  p      = fragCoord * iResolution.xy/min(iResolution.x,iResolution.y);
 	float circle = sdcircle(p, vec2(0,0),0.5);
 
 	vec3 col = (circle>0.0) ? vec3(0.9,0.6,0.3) : vec3(0.65,0.85,1.0);  // coloring

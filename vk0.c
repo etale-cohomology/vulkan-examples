@@ -47,7 +47,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 	vk.xcb_screen     = xcb_get_screen(vk.xcb_connection, xcb_screen_idx);  // vk.xcb_screen->width_in_pixels, vk.xcb_screen->height_in_pixels
 
 	vk.xcb_window = xcb_generate_id(vk.xcb_connection);
-	xcb_create_window(vk.xcb_connection, vk.xcb_screen->root_depth, vk.xcb_window, vk.xcb_screen->root, 0,0,vk.xcb_screen->width_in_pixels/2,vk.xcb_screen->height_in_pixels/1, 0,XCB_WINDOW_CLASS_INPUT_OUTPUT, vk.xcb_screen->root_visual, XCB_CW_BACK_PIXMAP|XCB_CW_EVENT_MASK, (u32[]){XCB_BACK_PIXMAP_NONE, XCB_EVENT_MASK_KEY_PRESS|XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_BUTTON_PRESS|XCB_EVENT_MASK_BUTTON_RELEASE|XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_EXPOSURE|XCB_EVENT_MASK_STRUCTURE_NOTIFY});  // The values of this array MUST match the order of the enum where all the masks are defined!
+	xcb_create_window(vk.xcb_connection, vk.xcb_screen->root_depth, vk.xcb_window, vk.xcb_screen->root, 0,0,vk.xcb_screen->width_in_pixels/1-1,vk.xcb_screen->height_in_pixels/1, 0,XCB_WINDOW_CLASS_INPUT_OUTPUT, vk.xcb_screen->root_visual, XCB_CW_BACK_PIXMAP|XCB_CW_EVENT_MASK, (u32[]){XCB_BACK_PIXMAP_NONE, XCB_EVENT_MASK_KEY_PRESS|XCB_EVENT_MASK_KEY_RELEASE | XCB_EVENT_MASK_BUTTON_PRESS|XCB_EVENT_MASK_BUTTON_RELEASE|XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_EXPOSURE|XCB_EVENT_MASK_STRUCTURE_NOTIFY});  // The values of this array MUST match the order of the enum where all the masks are defined!
 	xcb_map_window(vk.xcb_connection, vk.xcb_window);
 	xcb_flush(vk.xcb_connection);
 
@@ -226,17 +226,17 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------------------# 9) graphics pipeline
+	vkchk(vkCreatePipelineCache(vk.device, &(VkPipelineCacheCreateInfo){
+		sType: VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO,
+	}, NULL, &vk.graphicsPipelineCache));
+
 	vkCreatePipelineLayout(vk.device, &(VkPipelineLayoutCreateInfo){
 		sType:                  VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
 		setLayoutCount:         0,
 		pSetLayouts:            NULL,
 		pushConstantRangeCount: 0,
 		pPushConstantRanges:    NULL,
-	}, NULL, &vk.graphicsPipelineLayout);  // the old graphics APIs provided default state for most of the stages of the graphics pipeline. in Vulkan you must be explicit about most pipeline states as it'll be baked into an immutable pipeline state object. while most of the pipeline state needs to be baked into the pipeline state, a limited amount of the state can actually be changed without recreating the pipeline at draw time. Examples are the size of the viewport, line width and blend constants. if you want to use dynamic state and keep these properties out, then you'll have to fill in a VkPipelineDynamicStateCreateInfo. This will cause the configuration of these values to be ignored and you will be able (and required) to specify the data at drawing time. This results in a more flexible setup and is very common for things like viewport and scissor state, which would result in a more complex setup when being baked into the pipeline state
-
-	vkchk(vkCreatePipelineCache(vk.device, &(VkPipelineCacheCreateInfo){
-		sType: VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO,
-	}, NULL, &vk.graphicsPipelineCache));
+	}, NULL, &vk.graphicsPipelineLayout);  // the old graphics APIs provided default state for most of the stages of the graphics pipeline. in Vulkan you must be explicit about most pipeline states as it'll be baked into an immutable pipeline state object. while most of the pipeline state needs to be baked into the pipeline state, a limited amount of the state can actually be changed without recreating the pipeline at draw time: eg. the size of the viewport, line width, blend constants. if you want to use dynamic state and keep these properties out, then you'll have to fill in a VkPipelineDynamicStateCreateInfo. This'll cause the config of these vals to be ignored and you'll have to specify the data at drawing time. This yields a more flexible setup and is very common for things like viewport/scissor state, which would yield a more complex setup when being baked into the pipeline state
 
 	vkchk(vkCreateGraphicsPipelines(vk.device, vk.graphicsPipelineCache, 1,&(VkGraphicsPipelineCreateInfo){
 		sType:               VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -313,7 +313,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		},
 		pDynamicState:       &(VkPipelineDynamicStateCreateInfo){
 			sType:             VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
-			dynamicStateCount: 2,
+			dynamicStateCount: 2,  // viewport, scissor?
 			pDynamicStates:    (VkDynamicState[]){VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR},
 		},
 		layout:              vk.graphicsPipelineLayout,
