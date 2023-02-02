@@ -129,7 +129,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 	vkchk(vkCreateSwapchainKHR(vk.device, &(VkSwapchainCreateInfoKHR){
 		sType:                 VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,  // VkStructureType
 		surface:               vk.surface,                                   // VkSurfaceKHR
-		minImageCount:         surfaceCapabilities.maxImageCount==0 ? 2 : clamp(2, surfaceCapabilities.minImageCount, surfaceCapabilities.maxImageCount),  // we are effectively looking for double-buffering. if surfaceCapabilities.maxImageCount==0 there is actually no limit on the number of images! 
+		minImageCount:         clamp(2, surfaceCapabilities.minImageCount, surfaceCapabilities.maxImageCount),  // we are effectively looking for double-buffering. if surfaceCapabilities.maxImageCount==0 there is actually no limit on the number of images!  // surfaceCapabilities.maxImageCount==0 ? 2 : clamp(2, surfaceCapabilities.minImageCount, surfaceCapabilities.maxImageCount)
 		imageFormat:           vk.swapchainFormat,                           // VkFormat. if the format list includes just one entry of VK_FORMAT_UNDEFINED, the surface has no preferred format, else at least one supported format will be returned
 		imageColorSpace:       surfaceFormats[0].colorSpace,                 // VkColorSpaceKHR
 		imageExtent:           surfaceCapabilities.currentExtent,            // VkExtent2D
