@@ -119,8 +119,8 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 	surfaceCapabilities.currentExtent.width  = surfaceCapabilities.currentExtent.width!=0xffffffff ? surfaceCapabilities.currentExtent.width  : 1920;
 	surfaceCapabilities.currentExtent.height = surfaceCapabilities.currentExtent.width!=0xffffffff ? surfaceCapabilities.currentExtent.height : 1080;
 
-	vk.swapchainFormat     = surfaceFormatCount==1 && surfaceFormats[0].format==VK_FORMAT_UNDEFINED ? VK_FORMAT_B8G8R8_UNORM : surfaceFormats[0].format;  printf("swapchainFormat \x1b[35m%02x\x1b[0m\n",vk.swapchainFormat);  // surfaceFormatCount==1 && surfaceFormats[0].format==VK_FORMAT_UNDEFINED ? VK_FORMAT_B8G8R8_UNORM : surfaceFormats[0].format,
-	vk.swapchainExtent     = surfaceCapabilities.currentExtent;  
+	vk.swapchainFormat = surfaceFormatCount==1 && surfaceFormats[0].format==VK_FORMAT_UNDEFINED ? VK_FORMAT_B8G8R8_UNORM : surfaceFormats[0].format;  printf("swapchainFormat \x1b[35m%02x\x1b[0m\n",vk.swapchainFormat);  // surfaceFormatCount==1 && surfaceFormats[0].format==VK_FORMAT_UNDEFINED ? VK_FORMAT_B8G8R8_UNORM : surfaceFormats[0].format,
+	vk.swapchainExtent = surfaceCapabilities.currentExtent;
 
 	// u32              presentModeCount;               vkchk(vkGetPhysicalDeviceSurfacePresentModesKHR(vk.physicalDevice, vk.surface, &presentModeCount, NULL));
 	// VkPresentModeKHR presentModes[presentModeCount]; vkchk(vkGetPhysicalDeviceSurfacePresentModesKHR(vk.physicalDevice, vk.surface, &presentModeCount, presentModes));
@@ -170,8 +170,8 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 				levelCount:     1,
 				baseArrayLayer: 0,
 				layerCount:     1
-			},  // If you were working on a stereographic 3D application, then you would create a swap chain with multiple layers. You could then create multiple image views for each image representing the views for the left and right eyes by accessing different layers.
-		}, NULL, &swapchainImageViews[i]));  // an image view is sufficient to start using an image as a texture, but it's not quite ready to be used as a render target just yet. That requires one more step of indirection, known as a framebuffer. 
+			},  // If you were working on a stereographic 3D application, then you would create a swap chain with multiple layers. You could then create multiple image views for each image representing the views for the left and right eyes by accessing different layers
+		}, NULL, &swapchainImageViews[i]));  // an image view is sufficient to start using an image as a texture, but it's not quite ready to be used as a render target just yet. That requires one more step of indirection, known as a framebuffer
 	}
 
 	// ----------------------------------------------------------------------------------------------------------------------------# 7) render pass
@@ -240,7 +240,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		pPushConstantRanges:    NULL,
 	}, NULL, &vk.graphicsPipelineLayout);  // the old graphics APIs provided default state for most of the stages of the graphics pipeline. in Vulkan you must be explicit about most pipeline states as it'll be baked into an immutable pipeline state object. while most of the pipeline state needs to be baked into the pipeline state, a limited amount of the state can actually be changed without recreating the pipeline at draw time: eg. the size of the viewport, line width, blend constants. if you want to use dynamic state and keep these properties out, then you'll have to fill in a VkPipelineDynamicStateCreateInfo. This'll cause the config of these vals to be ignored and you'll have to specify the data at drawing time. This yields a more flexible setup and is very common for things like viewport/scissor state, which would yield a more complex setup when being baked into the pipeline state
 
-	vkchk(vkCreateGraphicsPipelines(vk.device, vk.graphicsPipelineCache, 1,&(VkGraphicsPipelineCreateInfo[]){{
+	vkchk(vkCreateGraphicsPipelines(vk.device, vk.graphicsPipelineCache, 1,(VkGraphicsPipelineCreateInfo[]){{
 		sType:               VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
 		stageCount:          arridim(SHDRS),
 		pStages:             pipelineShaderStageCreateInfos,  // BUG tcc! tcc needs the array size?
@@ -260,9 +260,9 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		pViewportState:  &(VkPipelineViewportStateCreateInfo){
 			sType:         VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
 			viewportCount: 1,
-			pViewports:    &(VkViewport[]){{x:0.0, y:0.0, width:vk.swapchainExtent.width, height:vk.swapchainExtent.height, minDepth:0.0, maxDepth:1.0}},
+			pViewports:    (VkViewport[]){{x:0.0, y:0.0, width:vk.swapchainExtent.width, height:vk.swapchainExtent.height, minDepth:0.0, maxDepth:1.0}},
 			scissorCount:  1,
-			pScissors:     &(VkRect2D[]){{offset:{0,0}, extent:vk.swapchainExtent}},
+			pScissors:     (VkRect2D[]){{offset:{0,0}, extent:vk.swapchainExtent}},
 		},
 		pRasterizationState: &(VkPipelineRasterizationStateCreateInfo){
 			sType:                   VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
