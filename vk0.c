@@ -146,9 +146,10 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 	}, NULL, &vk.swapchain));  // the swap chain has been created now, so all that remains is retrieving the handles of the VkImages in it
 
 	vkGetSwapchainImagesKHR(vk.device, vk.swapchain, &vk.swapchainImageCount, NULL);  printf("swapchainImageCount \x1b[92m%'u\x1b[0m\n", vk.swapchainImageCount);
-	VkImage       swapchainImages[      vk.swapchainImageCount];
-	VkFramebuffer swapchainFramebuffers[vk.swapchainImageCount];
-	VkImageView   swapchainImageViews[  vk.swapchainImageCount];  // to use any VkImage, including those in the swap chain, in the render pipeline we must create a VkImageView object
+	VkImage         swapchainImages[        vk.swapchainImageCount];
+	VkFramebuffer   swapchainFramebuffers[  vk.swapchainImageCount];
+	VkImageView     swapchainImageViews[    vk.swapchainImageCount];  // to use any VkImage, including those in the swap chain, in the render pipeline we must create a VkImageView object
+	VkCommandBuffer swapchainCommandBuffers[vk.swapchainImageCount];
 	vkGetSwapchainImagesKHR(vk.device, vk.swapchain, &vk.swapchainImageCount, swapchainImages);  // then we'll set up the imgs as render target
 
 	// ----------------------------------------------------------------------------------------------------------------------------# 5) image views
@@ -345,6 +346,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 
 	// ----------------------------------------------------------------------------------------------------------------------------# 11) cmd pools & cmd bufs
 	// to create command buffers we need to create a command pool
+#if 0
 	vkchk(vkCreateCommandPool(vk.device, &(VkCommandPoolCreateInfo){
 		sType:            VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
 		flags:            VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,  // VK_COMMAND_POOL_CREATE_TRANSIENT_BIT  VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT
@@ -357,6 +359,46 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		level:              VK_COMMAND_BUFFER_LEVEL_PRIMARY,
 		commandBufferCount: 1,
 	}, &vk.commandBuffer));  // cmd bufs are freed when their cmd pool is destroyed, no need to clean up
+#endif
+
+#if 1
+	vkchk(vkCreateCommandPool(vk.device, &(VkCommandPoolCreateInfo){
+		sType:            VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+		flags:            VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,  // VK_COMMAND_POOL_CREATE_TRANSIENT_BIT  VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT
+		queueFamilyIndex: vk.graphicsQueueFamilyIndex,
+	}, NULL, &vk.commandPool));
+
+	vkchk(vkAllocateCommandBuffers(vk.device, &(VkCommandBufferAllocateInfo){
+		sType:              VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		commandPool:        vk.commandPool,
+		level:              VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+		commandBufferCount: vk.swapchainImageCount,
+	}, swapchainCommandBuffers));  // cmd bufs are freed when their cmd pool is destroyed, no need to clean up
+
+	foru(i, 0,vk.swapchainImageCount){  // record draw cmds to the cmd bufs
+		vkchk(vkBeginCommandBuffer(swapchainCommandBuffers[i], &(VkCommandBufferBeginInfo){
+			sType:            VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+			flags:            0,    // optional. VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT  VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT  VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT
+			pInheritanceInfo: NULL, // optional
+		}));  // ini cmd buf recording. after call vkCmd*() fns
+
+		vkCmdBeginRenderPass(swapchainCommandBuffers[i], &(VkRenderPassBeginInfo){  // start render pass. drawing starts by beginning the render pass with vkCmdBeginRenderPass
+			sType:             VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+			renderPass:        vk.renderPass,
+			framebuffer:       swapchainFramebuffers[i],
+			renderArea:        (VkRect2D){(VkOffset2D){0,0}, extent:vk.swapchainExtent},
+			clearValueCount:   1,
+			pClearValues:      &(VkClearValue){{{0.0f, 0.0f, 0.0f, 1.0f}}},
+		}, VK_SUBPASS_CONTENTS_INLINE);
+
+		vkCmdBindPipeline( swapchainCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, vk.graphicsPipeline);  // VK_PIPELINE_BIND_POINT_GRAPHICS  VK_PIPELINE_BIND_POINT_COMPUTE  VK_PIPELINE_BIND_POINT_RAY_TRACING_NV
+		vkCmdSetViewport(  swapchainCommandBuffers[i], 0, 1, &(VkViewport){0.0,0.0, vk.swapchainExtent.width,vk.swapchainExtent.height, 0.0,0.0});
+		vkCmdSetScissor(   swapchainCommandBuffers[i], 0, 1, &(VkRect2D){offset:{0,0}, extent:vk.swapchainExtent});
+		vkCmdDraw(         swapchainCommandBuffers[i], 4, 1, 0, 0);  // IMPORTANT! draw as many vertices as you're passing to the vshdr
+		vkCmdEndRenderPass(swapchainCommandBuffers[i]);
+		vkchk(vkEndCommandBuffer(swapchainCommandBuffers[i]));  // end cmd buf recording
+	}
+#endif
 
 	// ----------------------------------------------------------------------------------------------------------------------------# 12) sync: semaphores, fences, barriers, events
 	vkchk(vkCreateSemaphore(vk.device, &(VkSemaphoreCreateInfo){sType:VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO}, NULL, &vk.imgrdySemaphore));
@@ -441,6 +483,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 
 		// ----------------------------------------------------------------------------------------------------------------------------
 		// 2) draw!
+#if 0
 		u32 swapchainIdx;
 		vkWaitForFences(vk.device, 1, &vk.drawFence, VK_TRUE, UINT64_MAX);  // at frame ini, wait until the prev frame has finished, so that the cmd buf and semaphores are available to use
 		vkResetFences(  vk.device, 1, &vk.drawFence);  // after waiting, we need to manually reset the fence to the unsignaled state with the vkResetFences call:
@@ -471,11 +514,11 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		vkCmdEndRenderPass(vk.commandBuffer);
 		vkchk(vkEndCommandBuffer(vk.commandBuffer));  // end cmd buf recording
 
+		// ----------------------------------------------------------------
 		// VkCommandBuffer A, B = ... // record command buffers
 		// VkSemaphore S = ... // create a semaphore
 		// vkQueueSubmit(work: A, signal: S, wait: None)  // enqueue A, signal S when done - starts executing immediately
 		// vkQueueSubmit(work: B, signal: None, wait: S)  // enqueue B, wait on S to start
-
 		vkchk(vkQueueSubmit(vk.graphicsQueue, 1, &(VkSubmitInfo){
 			sType:                VK_STRUCTURE_TYPE_SUBMIT_INFO,
 			waitSemaphoreCount:   1,
@@ -496,7 +539,39 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 			pImageIndices:      &swapchainIdx,
 			pResults:           NULL,  // optional
 		});
+#endif
+
+#if 1
+		u32 imageIndex;
+		vkWaitForFences(      vk.device, 1, &vk.drawFence, VK_TRUE, UINT64_MAX);  // at frame ini, wait until the prev frame has finished, so that the cmd buf and semaphores are available to use
+		vkResetFences(        vk.device, 1, &vk.drawFence);  // after waiting, we need to manually reset the fence to the unsignaled state with the vkResetFences call:
+		vkAcquireNextImageKHR(vk.device, vk.swapchain, UINT64_MAX, vk.imgrdySemaphore, VK_NULL_HANDLE, &imageIndex);
+		printf("\x1b[32m%.3f \x1b[0m%d\n", (dt_abs()-vk.t0)/1e9, imageIndex);
+
+		vkchk(vkQueueSubmit(vk.graphicsQueue, 1, &(VkSubmitInfo){
+			sType:                VK_STRUCTURE_TYPE_SUBMIT_INFO,
+			waitSemaphoreCount:   1,
+			pWaitSemaphores:      &(VkSemaphore){vk.imgrdySemaphore},
+			pWaitDstStageMask:    &(VkPipelineStageFlags){VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT},
+			commandBufferCount:   1,
+			pCommandBuffers:      &swapchainCommandBuffers[imageIndex],
+			signalSemaphoreCount: 1,
+			pSignalSemaphores:    &(VkSemaphore){vk.drawdoneSemaphore},
+		}, vk.drawFence));
+
+		vkQueuePresentKHR(vk.presentQueue, &(VkPresentInfoKHR){
+			sType:              VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+			waitSemaphoreCount: 1,
+			pWaitSemaphores:    &(VkSemaphore){vk.drawdoneSemaphore},
+			swapchainCount:     1,
+			pSwapchains:        &(VkSwapchainKHR){vk.swapchain},
+			pImageIndices:      &imageIndex,
+			pResults:           NULL,  // optional
+		});
+#endif
 	}  // END  while(vk.is_running)
+
+	vkDeviceWaitIdle(vk.device);  // vkQueueWaitIdle(vk.queue);
 
 	vkDeviceWaitIdle(vk.device);  // vkQueueWaitIdle(vk.queue);
 
