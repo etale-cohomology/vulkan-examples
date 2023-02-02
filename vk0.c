@@ -24,9 +24,9 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 			sType:              VK_STRUCTURE_TYPE_APPLICATION_INFO,  // VkStructureType
 			pNext:              &debugUtilsMessengerCreateInfo,      // const void*
 			pApplicationName:   "abc",                               // const char*
-			applicationVersion: VK_MAKE_VERSION(1,0,0),              // uint32_t
+			applicationVersion: VK_MAKE_VERSION(1,3,0),              // uint32_t
 			pEngineName:        "def",                               // const char*
-			engineVersion:      VK_MAKE_VERSION(1,0,0),              // uint32_t
+			engineVersion:      VK_MAKE_VERSION(1,3,0),              // uint32_t
 			apiVersion:         VK_API_VERSION_1_0,                  // uint32_t
 		},                                        // const VkApplicationInfo*
 		enabledLayerCount:       0,                                                                            // u32
@@ -238,7 +238,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		pPushConstantRanges:    NULL,
 	}, NULL, &vk.graphicsPipelineLayout);  // the old graphics APIs provided default state for most of the stages of the graphics pipeline. in Vulkan you must be explicit about most pipeline states as it'll be baked into an immutable pipeline state object. while most of the pipeline state needs to be baked into the pipeline state, a limited amount of the state can actually be changed without recreating the pipeline at draw time: eg. the size of the viewport, line width, blend constants. if you want to use dynamic state and keep these properties out, then you'll have to fill in a VkPipelineDynamicStateCreateInfo. This'll cause the config of these vals to be ignored and you'll have to specify the data at drawing time. This yields a more flexible setup and is very common for things like viewport/scissor state, which would yield a more complex setup when being baked into the pipeline state
 
-	vkchk(vkCreateGraphicsPipelines(vk.device, vk.graphicsPipelineCache, 1,&(VkGraphicsPipelineCreateInfo){
+	vkchk(vkCreateGraphicsPipelines(vk.device, vk.graphicsPipelineCache, 1,&(VkGraphicsPipelineCreateInfo[]){{
 		sType:               VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
 		stageCount:          arridim(SHDRS),
 		pStages:             pipelineShaderStageCreateInfos,  // BUG tcc! tcc needs the array size?
@@ -258,21 +258,21 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		pViewportState:  &(VkPipelineViewportStateCreateInfo){
 			sType:         VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
 			viewportCount: 1,
-			pViewports:    &(VkViewport){x:0.0, y:0.0, width:vk.swapchainExtent.width, height:vk.swapchainExtent.height, minDepth:0.0, maxDepth:1.0},
+			pViewports:    &(VkViewport[]){{x:0.0, y:0.0, width:vk.swapchainExtent.width, height:vk.swapchainExtent.height, minDepth:0.0, maxDepth:1.0}},
 			scissorCount:  1,
-			pScissors:     &(VkRect2D){offset:{0,0}, extent:vk.swapchainExtent}
+			pScissors:     &(VkRect2D[]){{offset:{0,0}, extent:vk.swapchainExtent}},
 		},
 		pRasterizationState: &(VkPipelineRasterizationStateCreateInfo){
 			sType:                   VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
 			depthClampEnable:        VK_FALSE,
-			rasterizerDiscardEnable: VK_FALSE,
+			rasterizerDiscardEnable: VK_FALSE,  // NOTE! nice to have?
 			polygonMode:             VK_POLYGON_MODE_FILL,
-			cullMode:                VK_CULL_MODE_BACK_BIT,
-			frontFace:               VK_FRONT_FACE_COUNTER_CLOCKWISE,  // IMPORTANT!
+			cullMode:                VK_CULL_MODE_NONE,                // use VK_CULL_MODE_NONE to disable culling! now we don't have to worry about the winding of our triangles  // VK_CULL_MODE_BACK_BIT
+			frontFace:               VK_FRONT_FACE_COUNTER_CLOCKWISE,  // IMPORTANT! but only if you set cullMode to something like VK_CULL_MODE_BACK_BIT
 			depthBiasEnable:         VK_FALSE,
-			depthBiasConstantFactor: 0.0,
-			depthBiasClamp:          0.0,
-			depthBiasSlopeFactor:    0.0,
+			depthBiasConstantFactor: 0.0,  // optional?
+			depthBiasClamp:          0.0,  // optional?
+			depthBiasSlopeFactor:    0.0,  // optional?
 			lineWidth:               1.0,
 		},
 		pMultisampleState:   &(VkPipelineMultisampleStateCreateInfo){
@@ -321,7 +321,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		subpass:             0,
 		basePipelineHandle:  VK_NULL_HANDLE,
 		basePipelineIndex:   0,
-	}, NULL, &vk.graphicsPipeline));  // vkCreateGraphicsPipelines() function has more parameters than the usual object creation functions in vk. it's designed to take multiple VkGraphicsPipelineCreateInfo's and create multiple VkPipeline's in a single call
+	}}, NULL, &vk.graphicsPipeline));  // vkCreateGraphicsPipelines() function has more parameters than the usual object creation functions in vk. it's designed to take multiple VkGraphicsPipelineCreateInfo's and create multiple VkPipeline's in a single call
 
 	foru(i, 0,arridim(SHDRS)){
 		file_end(&SHDRS[i].file);

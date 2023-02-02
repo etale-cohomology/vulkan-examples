@@ -8,7 +8,7 @@ all: vk0 vk1
 clean:
 	rm -f vk0 vk1
 
-vk0: vk0.c vk0.h  makefile  vk0shdr
+vk0: vk0.c vk0.h  makefile
 	$(T) $(CC) vk0.c -o vk0  -lvulkan  -lxcb
 vk0tcc: vk0.c vk0.h  makefile
 	$(T) $(TCC) vk0.c -o vk0  -lvulkan  -lxcb  # ${cflags} ${cnopie} ${cfast}
