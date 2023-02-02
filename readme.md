@@ -118,6 +118,7 @@ https://momentsingraphics.de/ToyRenderer4RayTracing.html
 - commend queues
 - vulkan xml API registry and scripts for processing it
 - is this how you pass variable arguments to functions in C? by using custom arg struct for each function? not too bad! it's like a function signature spec, or something. you can definitely implement that in a C abstraction layer
+- vk init is 3x the speed of opengl (init: 180ms vs 60ms, 1st render: 200ms vs ??ms), ie. 2x slower
 
 - vulkan is a layered API. There is a core layer that we are calling into, but inbetween the API calls and the loader other "layers" can intercept the API calls. The ones we are interested in here are the validation layers that will help us debug and track problems with our usage of the API.
 - you want to develop your app with this layers on but when shipping you should disable them
