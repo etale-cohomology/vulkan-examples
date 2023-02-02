@@ -155,6 +155,7 @@ tdef{
 	VkSemaphore                imgrdySemaphore;
 	VkSemaphore                drawdoneSemaphore;
 	VkFence                    drawFence;
+	u32                        imageIndex;
 
 	i32                        is_running;
 	xcb_keycode_t              keycode;

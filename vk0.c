@@ -542,19 +542,22 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 #endif
 
 #if 1
-		u32 imageIndex;
 		vkWaitForFences(      vk.device, 1, &vk.drawFence, VK_TRUE, UINT64_MAX);  // at frame ini, wait until the prev frame has finished, so that the cmd buf and semaphores are available to use
 		vkResetFences(        vk.device, 1, &vk.drawFence);  // after waiting, we need to manually reset the fence to the unsignaled state with the vkResetFences call:
-		vkAcquireNextImageKHR(vk.device, vk.swapchain, UINT64_MAX, vk.imgrdySemaphore, VK_NULL_HANDLE, &imageIndex);
-		printf("\x1b[32m%.3f \x1b[0m%d\n", (dt_abs()-vk.t0)/1e9, imageIndex);
+		vkAcquireNextImageKHR(vk.device, vk.swapchain, UINT64_MAX, vk.imgrdySemaphore, VK_NULL_HANDLE, &vk.imageIndex);
+		printf("\x1b[32m%.3f \x1b[0m%d\n", (dt_abs()-vk.t0)/1e9, vk.imageIndex);
 
+		// VkCommandBuffer A, B = ... // record command buffers
+		// VkSemaphore S = ... // create a semaphore
+		// vkQueueSubmit(work: A, signal: S, wait: None)  // enqueue A, signal S when done - starts executing immediately
+		// vkQueueSubmit(work: B, signal: None, wait: S)  // enqueue B, wait on S to start
 		vkchk(vkQueueSubmit(vk.graphicsQueue, 1, &(VkSubmitInfo){
 			sType:                VK_STRUCTURE_TYPE_SUBMIT_INFO,
 			waitSemaphoreCount:   1,
 			pWaitSemaphores:      &(VkSemaphore){vk.imgrdySemaphore},
 			pWaitDstStageMask:    &(VkPipelineStageFlags){VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT},
 			commandBufferCount:   1,
-			pCommandBuffers:      &swapchainCommandBuffers[imageIndex],
+			pCommandBuffers:      &swapchainCommandBuffers[vk.imageIndex],
 			signalSemaphoreCount: 1,
 			pSignalSemaphores:    &(VkSemaphore){vk.drawdoneSemaphore},
 		}, vk.drawFence));
@@ -565,13 +568,11 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 			pWaitSemaphores:    &(VkSemaphore){vk.drawdoneSemaphore},
 			swapchainCount:     1,
 			pSwapchains:        &(VkSwapchainKHR){vk.swapchain},
-			pImageIndices:      &imageIndex,
+			pImageIndices:      &vk.imageIndex,
 			pResults:           NULL,  // optional
 		});
 #endif
 	}  // END  while(vk.is_running)
-
-	vkDeviceWaitIdle(vk.device);  // vkQueueWaitIdle(vk.queue);
 
 	vkDeviceWaitIdle(vk.device);  // vkQueueWaitIdle(vk.queue);
 
