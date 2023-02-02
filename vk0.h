@@ -2,7 +2,7 @@
 t tcc vk0.c -o vk0  -lxcb -lvulkan  &&  t ./vk0
 */
 
-// ----------------------------------------------------------------------------------------------------------------------------# @blk1  util
+// ----------------------------------------------------------------------------------------------------------------------------# @blk1  kw
 #include <stdio.h>
 #include <string.h>
 
@@ -14,7 +14,7 @@ t tcc vk0.c -o vk0  -lxcb -lvulkan  &&  t ./vk0
 #define udef   typedef union    // union    definition
 #define cdef   static const     // constant definition
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------------------# @blk1  types
 #include <stdint.h>
 
 typedef    uint8_t    u8;
@@ -32,7 +32,7 @@ typedef  double       f64;
 typedef  float        float32_t;
 typedef  double       float64_t;
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------------------# @blk1
 #include <errno.h>  // A @do{}while(0) expands into a `regular statement`, not a `compound statement` (as a @{} macro would)
 #define M_SEP                            "-------------------------------------------------------------------------------------------------------------------------------\x1b[91m#\x1b[0m\n"
 #define chk( st,...)do{  if(     (st)<= 0){    printf("\x1b[91mFAIL  \x1b[31m%s\x1b[91m:\x1b[0mL\x1b[32m%d\x1b[91m:\x1b[34m%s\x1b[0m()  ",                                       __FILE__,__LINE__,__func__);                        printf(""__VA_ARGS__); putchar(0x0a); }  }while(0)  // @meta  C     error convention ( 0:false, 1:true), value itself   for error codes. use a statement-expression so it can be used in bracket-less IF or IF-ELSE statements
@@ -48,7 +48,16 @@ typedef  double       float64_t;
 
 #define arridim(ARR)  (sizeof((ARR)) / sizeof((*(ARR))))
 
-// ----------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------------------------------------# @blk1
+#include <time.h>
+tdef{ u64 t0,t1; }dt_t;
+fdefi u64  dt_abs()         {  struct timespec ep; clock_gettime(CLOCK_REALTIME, &ep);  return ep.tv_sec*1000000000ull + ep.tv_nsec;  }  // Get time in NANOSECONDS (@dt_abs()) or SECONDS w/ NANOSECOND-resolution (@dt_del())! *Must* use 64-bit counters!  NOTE! clock_gettime() is very slow (50ns); time(NULL) is 25s)! CLOCK_MONOTONIC_COARSE is too coarse!  NOTE! Use CLOCK_REALTIME, not CLOCK_MONOTONIC, for @dt_abs(), since @loop depends on it for a precise Unix time
+fdefi f64  dt_del( dt_t  dt){  return (dt.t1 - dt.t0) / 1e9;  }                                                                          // Get `relative time`, ie. a `time differential/delta/difference` between 2 absolute times! The time delta is returned in seconds, and its resolution is in nanoseconds!
+fdefi dt_t dt_ini()         {  return (dt_t){t0:dt_abs(), t1:0ull};  }
+fdefi void dt_end( dt_t* dt){  dt->t1 = dt_abs();  }
+fdefi void dt_show(dt_t  dt){  printf("  \x1b[32m%0.6f \x1b[0ms\n", dt_del(dt));  }
+
+// ----------------------------------------------------------------------------------------------------------------------------# @blk1
 #include <fcntl.h>     // @open()
 #include <unistd.h>    // @ftruncate()
 #include <sys/mman.h>  // @mmap()
@@ -152,6 +161,7 @@ tdef{
 	u8                         mouse_key;
 	u16                        mouse_state;
 	i16                        mouse_x, mouse_y;
+	u64                        t0;
 }vk_t;
 
 static VkBool32 fnDebugUtilsMessengerCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData){  // VK_EXT_debug_utils

@@ -119,7 +119,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 	surfaceCapabilities.currentExtent.width  = surfaceCapabilities.currentExtent.width!=0xffffffff ? surfaceCapabilities.currentExtent.width  : 1920;
 	surfaceCapabilities.currentExtent.height = surfaceCapabilities.currentExtent.width!=0xffffffff ? surfaceCapabilities.currentExtent.height : 1080;
 
-	vk.swapchainFormat     = surfaceFormatCount==1 && surfaceFormats[0].format==VK_FORMAT_UNDEFINED ? VK_FORMAT_B8G8R8_UNORM : surfaceFormats[0].format;  printf("vk.swapchainFormat \x1b[35m%02x\x1b[0m\n",vk.swapchainFormat);  // surfaceFormatCount==1 && surfaceFormats[0].format==VK_FORMAT_UNDEFINED ? VK_FORMAT_B8G8R8_UNORM : surfaceFormats[0].format,
+	vk.swapchainFormat     = surfaceFormatCount==1 && surfaceFormats[0].format==VK_FORMAT_UNDEFINED ? VK_FORMAT_B8G8R8_UNORM : surfaceFormats[0].format;  printf("swapchainFormat \x1b[35m%02x\x1b[0m\n",vk.swapchainFormat);  // surfaceFormatCount==1 && surfaceFormats[0].format==VK_FORMAT_UNDEFINED ? VK_FORMAT_B8G8R8_UNORM : surfaceFormats[0].format,
 	vk.swapchainExtent     = surfaceCapabilities.currentExtent;  
 
 	// u32              presentModeCount;               vkchk(vkGetPhysicalDeviceSurfacePresentModesKHR(vk.physicalDevice, vk.surface, &presentModeCount, NULL));
@@ -145,7 +145,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		oldSwapchain:          VK_NULL_HANDLE,                               // VkSwapchainKHR
 	}, NULL, &vk.swapchain));  // the swap chain has been created now, so all that remains is retrieving the handles of the VkImages in it
 
-	vk.swapchainImageCount;                           vkGetSwapchainImagesKHR(vk.device, vk.swapchain, &vk.swapchainImageCount, NULL);  printf("swapchainImageCount \x1b[92m%'u\x1b[0m\n", vk.swapchainImageCount);
+	                                                  vkGetSwapchainImagesKHR(vk.device, vk.swapchain, &vk.swapchainImageCount, NULL);  printf("swapchainImageCount \x1b[92m%'u\x1b[0m\n", vk.swapchainImageCount);
 	VkImage swapchainImages[vk.swapchainImageCount];  vkGetSwapchainImagesKHR(vk.device, vk.swapchain, &vk.swapchainImageCount, swapchainImages);  // then we'll set up the imgs as render target
 
 	// ----------------------------------------------------------------------------------------------------------------------------# 5) image views
@@ -368,6 +368,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 
 	// ----------------------------------------------------------------------------------------------------------------------------# 13) main loop: acquire an img from the swap chain, record/execute a cmd buf, return the img to the swap chain
 	vk.is_running = 1;
+	vk.t0         = dt_abs();
 
 	xcb_generic_event_t* xcb_ev = NULL;
 	while(vk.is_running){  // Event loop!
@@ -445,7 +446,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		vkResetFences(  vk.device, 1, &vk.drawFence);  // after waiting, we need to manually reset the fence to the unsignaled state with the vkResetFences call:
 		vkAcquireNextImageKHR(vk.device, vk.swapchain, UINT64_MAX, vk.imgrdySemaphore, VK_NULL_HANDLE, &swapchainIdx);
 		vkResetCommandBuffer(vk.commandBuffer, 0);
-		printf("%d\n", swapchainIdx);
+		printf("\x1b[32m%.3f \x1b[0m%d\n", (dt_abs()-vk.t0)/1e9, swapchainIdx);
 
 		// ----------------------------------------------------------------
 		vkchk(vkBeginCommandBuffer(vk.commandBuffer, &(VkCommandBufferBeginInfo){
@@ -510,8 +511,8 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 
 	vkDestroyCommandPool(vk.device, vk.commandPool, NULL);
 
-	vkDestroyPipeline(vk.device, vk.graphicsPipeline, NULL);
-	vkDestroyPipelineCache(vk.device, vk.graphicsPipelineCache, NULL);
+	vkDestroyPipeline(      vk.device, vk.graphicsPipeline, NULL);
+	vkDestroyPipelineCache( vk.device, vk.graphicsPipelineCache, NULL);
 	vkDestroyPipelineLayout(vk.device, vk.graphicsPipelineLayout, NULL);
 
 	vkDestroyRenderPass(vk.device, vk.renderPass, NULL);
@@ -521,9 +522,10 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 	}
 
 	vkDestroySwapchainKHR(vk.device, vk.swapchain, NULL);
-	vkDestroyDevice(vk.device, NULL);
-	vkDestroySurfaceKHR(vk.instance, vk.surface, NULL);  // it's not called @vkDestroyXcbSurfaceKHR()
+	vkDestroyDevice(      vk.device, NULL);
+
+	vkDestroySurfaceKHR(            vk.instance, vk.surface, NULL);  // it's not called @vkDestroyXcbSurfaceKHR()
 	vkDestroyDebugUtilsMessengerEXT(vk.instance, vk.debugUtilsMessenger, NULL);  // vkDestroyDebugReportCallbackEXT(vk.instance, vk.debugReportCallback, NULL);
-	vkDestroyInstance(vk.instance, NULL);
+	vkDestroyInstance(              vk.instance, NULL);
 	return 0;
 }
