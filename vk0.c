@@ -559,15 +559,15 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 			pSignalSemaphores:    &(VkSemaphore){vk.drawdoneSemaphore},
 		}, vk.drawFence));
 
-		// vkQueuePresentKHR(vk.presentQueue, &(VkPresentInfoKHR){
-		// 	sType:              VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-		// 	waitSemaphoreCount: 1,
-		// 	pWaitSemaphores:    &(VkSemaphore){vk.drawdoneSemaphore},
-		// 	swapchainCount:     1,
-		// 	pSwapchains:        &(VkSwapchainKHR){vk.swapchain},
-		// 	pImageIndices:      &imageIndex,
-		// 	pResults:           NULL,  // optional
-		// });
+		vkQueuePresentKHR(vk.presentQueue, &(VkPresentInfoKHR){
+			sType:              VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+			waitSemaphoreCount: 1,
+			pWaitSemaphores:    &(VkSemaphore){vk.drawdoneSemaphore},
+			swapchainCount:     1,
+			pSwapchains:        &(VkSwapchainKHR){vk.swapchain},
+			pImageIndices:      &imageIndex,
+			pResults:           NULL,  // optional
+		});
 #endif
 	}  // END  while(vk.is_running)
 
