@@ -4,7 +4,7 @@ layout(location=0) out vec4 fragColor;
 
 vec4 iResolution = vec4(1920/2,1080, 0,0);
 
-// https://www.shadertoy.com/view/3ltSW2
+// https://shadertoy.com/view/3ltSW2
 float sdcircle(in vec2 uv, in vec2 center,in float radius){
 	return length(center-uv) - radius;
 }
