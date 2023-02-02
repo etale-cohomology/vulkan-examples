@@ -228,6 +228,51 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		};
 	}
 
+	// ----------------------------------------------------------------------------------------------------------------------------# 11) bufs: eg. vertex buffers  https://vulkan-tutorial.com/Vertex_buffers/Vertex_buffer_creation
+	struct{
+		f32 x,y;
+	}verts[] = {
+		{-1.0, +1.0},  // bottom left
+		{+1.0, +1.0},  // bottom right
+		{-1.0, -1.0},  // top    left
+		{+1.0, -1.0},  // top    right
+	};
+	vk.vertexCount = arridim(verts);
+	VkDeviceSize vertexBufferSize = sizeof(verts[0])*vk.vertexCount;
+
+	vkchk(vkCreateBuffer(vk.device,&(VkBufferCreateInfo){
+		sType:                 VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,  // VkStructureType
+		flags:                 0,                                     // VkBufferCreateFlags
+		size:                  vertexBufferSize,                      // VkDeviceSize
+		usage:                 VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,     // VkBufferUsageFlags
+		sharingMode:           VK_SHARING_MODE_EXCLUSIVE,             // VkSharingMode: VK_SHARING_MODE_EXCLUSIVE  VK_SHARING_MODE_CONCURRENT
+		queueFamilyIndexCount: 0,                                     // uint32_t
+		pQueueFamilyIndices:   NULL,                                  // const uint32_t*
+	}, NULL, &vk.vertexBuffer));
+
+	VkMemoryPropertyFlags properties = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT|VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+	VkMemoryRequirements             memoryRequirements; vkGetBufferMemoryRequirements(vk.device, vk.vertexBuffer, &memoryRequirements);
+	VkPhysicalDeviceMemoryProperties memoryProperties;   vkGetPhysicalDeviceMemoryProperties(vk.physicalDevice, &memoryProperties);
+	u32 memoryTypeIndex = -1;
+	foru(i, 0,memoryProperties.memoryTypeCount){
+		if((memoryRequirements.memoryTypeBits & (1<<i)) && (memoryProperties.memoryTypes[i].propertyFlags&properties) == properties){
+			memoryTypeIndex = i;
+			break;
+		}
+	}  chk(memoryTypeIndex!=-1, "physical device satisfyng memory type requirements not found");
+	printf("memoryTypeIndex \x1b[35m%d\x1b[0m\n", memoryTypeIndex);
+
+	vkchk(vkAllocateMemory(vk.device, &(VkMemoryAllocateInfo){
+		sType:           VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,  // VkStructureType
+		allocationSize:  vertexBufferSize,  // VkDeviceSize
+		memoryTypeIndex: memoryTypeIndex,  // uint32_t  // TODO! check against @memoryRequirements.memoryTypeBits?
+	}, NULL, &vk.vertexBufferMemory));
+
+	vkBindBufferMemory(vk.device, vk.vertexBuffer, vk.vertexBufferMemory, 0);
+	void* vertexBufferData; vkMapMemory(vk.device, vk.vertexBufferMemory, 0,vertexBufferSize, 0,&vertexBufferData);
+	memcpy(vertexBufferData, verts, vertexBufferSize);
+	vkUnmapMemory(vk.device, vk.vertexBufferMemory);
+
 	// ----------------------------------------------------------------------------------------------------------------------------# 9) graphics pipeline
 	vkchk(vkCreatePipelineCache(vk.device, &(VkPipelineCacheCreateInfo){
 		sType: VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO,
@@ -246,11 +291,20 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		stageCount:          arridim(SHDRS),
 		pStages:             pipelineShaderStageCreateInfos,  // BUG tcc! tcc needs the array size?
 		pVertexInputState:   &(VkPipelineVertexInputStateCreateInfo){  // describe the format of the vertex data that will be passed to the vshdr: bindings, attribute descriptions
-			sType:                           VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
-			vertexBindingDescriptionCount:   0,
-			pVertexBindingDescriptions:      NULL,
-			vertexAttributeDescriptionCount: 0,
-			pVertexAttributeDescriptions:    NULL,
+	    sType:                           VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,  // VkStructureType
+	    vertexBindingDescriptionCount:   1,  // uint32_t
+	    pVertexBindingDescriptions:      	(VkVertexInputBindingDescription[]){{  // const VkVertexInputBindingDescription*
+				binding:   0,
+				stride:    sizeof(verts[0]),
+				inputRate: VK_VERTEX_INPUT_RATE_VERTEX,  // VkVertexInputRate: VK_VERTEX_INPUT_RATE_VERTEX  VK_VERTEX_INPUT_RATE_INSTANCE
+			}},
+	    vertexAttributeDescriptionCount: 1,  // uint32_t
+	    pVertexAttributeDescriptions:    (VkVertexInputAttributeDescription[]){{
+				binding:  0,
+				location: 0,
+				format:   VK_FORMAT_R32G32_SFLOAT,
+				offset:   0,  // offsetof(vert_t,x)
+			}},  // const VkVertexInputAttributeDescription*
 		},
 		pInputAssemblyState: &(VkPipelineInputAssemblyStateCreateInfo){  // what kind of geometry will be drawn from the vertices and if primitive restart should be enabled
 			sType:                  VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
@@ -344,25 +398,8 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		}, NULL, &swapchainFramebuffers[i]));
 	}
 
-	// ----------------------------------------------------------------------------------------------------------------------------# 11) cmd pools & cmd bufs
-	// to create command buffers we need to create a command pool
-#if 0
-	vkchk(vkCreateCommandPool(vk.device, &(VkCommandPoolCreateInfo){
-		sType:            VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
-		flags:            VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,  // VK_COMMAND_POOL_CREATE_TRANSIENT_BIT  VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT
-		queueFamilyIndex: vk.graphicsQueueFamilyIndex,
-	}, NULL, &vk.commandPool));
-
-	vkchk(vkAllocateCommandBuffers(vk.device, &(VkCommandBufferAllocateInfo){
-		sType:              VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-		commandPool:        vk.commandPool,
-		level:              VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-		commandBufferCount: 1,
-	}, &vk.commandBuffer));  // cmd bufs are freed when their cmd pool is destroyed, no need to clean up
-#endif
-
-#if 1
-	vkchk(vkCreateCommandPool(vk.device, &(VkCommandPoolCreateInfo){
+	// ----------------------------------------------------------------------------------------------------------------------------# 12) cmd pools & cmd bufs
+	vkchk(vkCreateCommandPool(vk.device, &(VkCommandPoolCreateInfo){  // to create command buffers we need to create a command pool
 		sType:            VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
 		flags:            VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,  // VK_COMMAND_POOL_CREATE_TRANSIENT_BIT  VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT
 		queueFamilyIndex: vk.graphicsQueueFamilyIndex,
@@ -394,13 +431,15 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		vkCmdBindPipeline( swapchainCommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, vk.graphicsPipeline);  // VK_PIPELINE_BIND_POINT_GRAPHICS  VK_PIPELINE_BIND_POINT_COMPUTE  VK_PIPELINE_BIND_POINT_RAY_TRACING_NV
 		vkCmdSetViewport(  swapchainCommandBuffers[i], 0, 1, &(VkViewport){0.0,0.0, vk.swapchainExtent.width,vk.swapchainExtent.height, 0.0,0.0});
 		vkCmdSetScissor(   swapchainCommandBuffers[i], 0, 1, &(VkRect2D){offset:{0,0}, extent:vk.swapchainExtent});
-		vkCmdDraw(         swapchainCommandBuffers[i], 4, 1, 0, 0);  // IMPORTANT! draw as many vertices as you're passing to the vshdr
+
+		vkCmdBindVertexBuffers(swapchainCommandBuffers[i], 0,1, (VkBuffer[]){vk.vertexBuffer}, (VkDeviceSize[]){0x00});
+
+		vkCmdDraw(         swapchainCommandBuffers[i], vk.vertexCount, 1, 0, 0);  // IMPORTANT! draw as many vertices as you're passing to the vshdr
 		vkCmdEndRenderPass(swapchainCommandBuffers[i]);
 		vkchk(vkEndCommandBuffer(swapchainCommandBuffers[i]));  // end cmd buf recording
 	}
-#endif
 
-	// ----------------------------------------------------------------------------------------------------------------------------# 12) sync: semaphores, fences, barriers, events
+	// ----------------------------------------------------------------------------------------------------------------------------# 13) sync: semaphores, fences, barriers, events
 	vkchk(vkCreateSemaphore(vk.device, &(VkSemaphoreCreateInfo){sType:VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO}, NULL, &vk.imgrdySemaphore));
 	vkchk(vkCreateSemaphore(vk.device, &(VkSemaphoreCreateInfo){sType:VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO}, NULL, &vk.drawdoneSemaphore));
 	vkchk(vkCreateFence(vk.device, &(VkFenceCreateInfo){
@@ -408,7 +447,7 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 		flags: VK_FENCE_CREATE_SIGNALED_BIT,  // prevent the fence from waiting indefinitely
 	}, NULL, &vk.drawFence));
 
-	// ----------------------------------------------------------------------------------------------------------------------------# 13) main loop: acquire an img from the swap chain, record/execute a cmd buf, return the img to the swap chain
+	// ----------------------------------------------------------------------------------------------------------------------------# 14) main loop: acquire an img from the swap chain, record/execute a cmd buf, return the img to the swap chain
 	vk.is_running = 1;
 	vk.t0         = dt_abs();
 
@@ -483,65 +522,6 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 
 		// ----------------------------------------------------------------------------------------------------------------------------
 		// 2) draw!
-#if 0
-		u32 swapchainIdx;
-		vkWaitForFences(vk.device, 1, &vk.drawFence, VK_TRUE, UINT64_MAX);  // at frame ini, wait until the prev frame has finished, so that the cmd buf and semaphores are available to use
-		vkResetFences(  vk.device, 1, &vk.drawFence);  // after waiting, we need to manually reset the fence to the unsignaled state with the vkResetFences call:
-		vkAcquireNextImageKHR(vk.device, vk.swapchain, UINT64_MAX, vk.imgrdySemaphore, VK_NULL_HANDLE, &swapchainIdx);
-		vkResetCommandBuffer(vk.commandBuffer, 0);
-		printf("\x1b[32m%.3f \x1b[0m%d\n", (dt_abs()-vk.t0)/1e9, swapchainIdx);
-
-		// ----------------------------------------------------------------
-		vkchk(vkBeginCommandBuffer(vk.commandBuffer, &(VkCommandBufferBeginInfo){
-			sType:            VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-			flags:            0,    // optional. VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT  VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT  VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT
-			pInheritanceInfo: NULL, // optional
-		}));  // ini cmd buf recording. after call vkCmd*() fns
-
-		vkCmdBeginRenderPass(vk.commandBuffer, &(VkRenderPassBeginInfo){  // start render pass. drawing starts by beginning the render pass with vkCmdBeginRenderPass
-			sType:             VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-			renderPass:        vk.renderPass,
-			framebuffer:       swapchainFramebuffers[swapchainIdx],
-			renderArea:        (VkRect2D){(VkOffset2D){0,0}, extent:vk.swapchainExtent},
-			clearValueCount:   1,
-			pClearValues:      &(VkClearValue){{{0.0f, 0.0f, 0.0f, 1.0f}}},
-		}, VK_SUBPASS_CONTENTS_INLINE);
-
-		vkCmdBindPipeline( vk.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk.graphicsPipeline);
-		vkCmdSetViewport(  vk.commandBuffer, 0, 1, &(VkViewport){0.0,0.0, vk.swapchainExtent.width,vk.swapchainExtent.height, 0.0,0.0});
-		vkCmdSetScissor(   vk.commandBuffer, 0, 1, &(VkRect2D){offset:{0,0}, extent:vk.swapchainExtent});
-		vkCmdDraw(         vk.commandBuffer, 4, 1, 0, 0);  // IMPORTANT! draw 4 vertices
-		vkCmdEndRenderPass(vk.commandBuffer);
-		vkchk(vkEndCommandBuffer(vk.commandBuffer));  // end cmd buf recording
-
-		// ----------------------------------------------------------------
-		// VkCommandBuffer A, B = ... // record command buffers
-		// VkSemaphore S = ... // create a semaphore
-		// vkQueueSubmit(work: A, signal: S, wait: None)  // enqueue A, signal S when done - starts executing immediately
-		// vkQueueSubmit(work: B, signal: None, wait: S)  // enqueue B, wait on S to start
-		vkchk(vkQueueSubmit(vk.graphicsQueue, 1, &(VkSubmitInfo){
-			sType:                VK_STRUCTURE_TYPE_SUBMIT_INFO,
-			waitSemaphoreCount:   1,
-			pWaitSemaphores:      &(VkSemaphore){vk.imgrdySemaphore},
-			pWaitDstStageMask:    &(VkPipelineStageFlags){VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT},
-			commandBufferCount:   1,
-			pCommandBuffers:      &vk.commandBuffer,
-			signalSemaphoreCount: 1,
-			pSignalSemaphores:    &(VkSemaphore){vk.drawdoneSemaphore},
-		}, vk.drawFence));
-
-		vkQueuePresentKHR(vk.presentQueue, &(VkPresentInfoKHR){
-			sType:              VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-			waitSemaphoreCount: 1,
-			pWaitSemaphores:    &(VkSemaphore){vk.drawdoneSemaphore},
-			swapchainCount:     1,
-			pSwapchains:        &(VkSwapchainKHR){vk.swapchain},
-			pImageIndices:      &swapchainIdx,
-			pResults:           NULL,  // optional
-		});
-#endif
-
-#if 1
 		vkWaitForFences(      vk.device, 1, &vk.drawFence, VK_TRUE, UINT64_MAX);  // at frame ini, wait until the prev frame has finished, so that the cmd buf and semaphores are available to use
 		vkResetFences(        vk.device, 1, &vk.drawFence);  // after waiting, we need to manually reset the fence to the unsignaled state with the vkResetFences call:
 		vkAcquireNextImageKHR(vk.device, vk.swapchain, UINT64_MAX, vk.imgrdySemaphore, VK_NULL_HANDLE, &vk.imageIndex);
@@ -571,7 +551,6 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 			pImageIndices:      &vk.imageIndex,
 			pResults:           NULL,  // optional
 		});
-#endif
 
 		// vk.is_running = 0;
 	}  // END  while(vk.is_running)
@@ -582,6 +561,9 @@ fdefe int main(){  // Pseudocode of what an application looks like. I've omitted
 	// Wait for everything to be done, and free objects
 	xcb_destroy_window(vk.xcb_connection, vk.xcb_window);
 	xcb_disconnect(vk.xcb_connection);
+
+	vkDestroyBuffer(vk.device, vk.vertexBuffer, NULL);
+	vkFreeMemory(vk.device, vk.vertexBufferMemory, NULL);
 
 	vkDestroySemaphore(vk.device, vk.imgrdySemaphore, NULL);
 	vkDestroySemaphore(vk.device, vk.drawdoneSemaphore, NULL);

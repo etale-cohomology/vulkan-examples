@@ -110,6 +110,8 @@ https://harrylovescode.gitbooks.io/vulkan-api/content/chap06/chap06.html
 https://renderdoc.org/vulkan-in-30-minutes.html  
 https://momentsingraphics.de/ToyRenderer4RayTracing.html  
 
+http://kylehalladay.com/blog/tutorial/2017/12/13/Custom-Allocators-Vulkan.html
+
 # notes
 
 - vk shaders are all in spir-v binary

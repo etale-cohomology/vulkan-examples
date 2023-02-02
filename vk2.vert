@@ -10,6 +10,6 @@ vec2 positions[] = vec2[](  // [-1..+1] x [-1..+1] in (x,-y) coordinates with or
 );
 
 void main(){
-	gl_Position = vec4(positions[gl_VertexIndex], 0.0, 1.0);
+	gl_Position = vec4(position, 0.0, 1.0);
 	fragCoord   = gl_Position.xy;
 }

@@ -1,5 +1,6 @@
 /*
-t tcc vk0.c -o vk0  -lxcb -lvulkan  &&  t ./vk0
+m vk2shdr vk2                       &&  t ./vk2
+t tcc vk2.c -o vk2  -lxcb -lvulkan  &&  t ./vk2
 */
 
 // ----------------------------------------------------------------------------------------------------------------------------# @blk1  kw
@@ -156,6 +157,10 @@ tdef{
 	VkSemaphore                drawdoneSemaphore;
 	VkFence                    drawFence;
 	u32                        imageIndex;
+
+	VkBuffer                   vertexBuffer;
+	VkDeviceMemory             vertexBufferMemory;
+	u32                        vertexCount;
 
 	i32                        is_running;
 	xcb_keycode_t              keycode;
